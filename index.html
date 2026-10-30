@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What Do You Know About Light?</title>
+<style>
+  :root{
+    --ink:#1c2430; --muted:#5a6572; --accent:#0b5cad; --accent-dark:#084a8a;
+    --card:#ffffff; --bg:#eef2f6; --line:#d4dce4; --soft:#f4f8fc;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);color:var(--ink);line-height:1.5;}
+  .wrap{max-width:760px;margin:0 auto;padding:16px 14px 48px;}
+  header{margin:10px 0 14px;}
+  h1{font-size:1.7rem;margin:0 0 4px;}
+  .subtitle{color:var(--muted);font-size:1rem;margin:0 0 10px;}
+  .intro{font-size:1.02rem;margin:0;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:16px;margin:14px 0;box-shadow:0 1px 3px rgba(20,40,60,.06);}
+  .prompt{margin:0 0 18px;}
+  .prompt label{display:block;font-weight:600;margin:0 0 6px;}
+  .prompt textarea{width:100%;min-height:96px;padding:10px 12px;font:inherit;font-size:1rem;
+    border:1px solid var(--line);border-radius:8px;resize:vertical;}
+  .prompt textarea:focus-visible,.prompt input:focus-visible,button:focus-visible{
+    outline:3px solid #f2b01e;outline-offset:2px;}
+  .sliderrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+  .sliderrow .end{color:var(--muted);font-size:.92rem;}
+  .sliderrow input[type=range]{flex:1 1 180px;min-height:44px;accent-color:var(--accent);}
+  .slidervalue{font-weight:600;min-width:88px;}
+  button{cursor:pointer;border:1px solid var(--accent);background:var(--accent);color:#fff;
+    padding:9px 16px;border-radius:8px;min-height:44px;font-weight:600;font:inherit;}
+  button:hover{background:var(--accent-dark);}
+  button.secondary{background:#fff;color:var(--accent);}
+  button.secondary:hover{background:var(--soft);}
+  .btnrow{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0 0;}
+  .hidden{display:none !important;}
+  .answer{margin:0 0 18px;}
+  .answer h3{font-size:1rem;margin:0 0 4px;}
+  .answer p{margin:0;white-space:pre-wrap;}
+  .answer p.blank{color:var(--muted);font-style:italic;}
+  .copied{font-weight:600;color:#177245;min-height:1.3em;margin:10px 0 0;}
+  .note{color:var(--muted);font-size:.95rem;}
+  @media (max-width:680px){h1{font-size:1.4rem;}}
+  @media print{
+    body{background:#fff;}
+    .noprint{display:none !important;}
+    .card{box-shadow:none;border-color:#999;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>What Do You Know About Light?</h1>
+<p class="subtitle">Grade 8 STEAM, Lesson 1: Introduction to Light</p>
+<p class="intro">This is a check-in before the lesson, not a test. There are no right or wrong answers here. Answer honestly, before you start the lesson videos, so you can see what you already bring to the topic.</p>
+</header>
+<main>
+<section id="formView" class="card" aria-label="Check-in questions">
+<div class="prompt"><label for="q1">1. In your own words, what is light?</label><textarea id="q1" rows="4"></textarea></div>
+<div class="prompt"><label for="q2">2. List as many sources of light as you can. Which of them are natural, and which are made by people?</label><textarea id="q2" rows="4"></textarea></div>
+<div class="prompt"><label for="q3">3. How do you think light travels? Describe the path light takes from a source to your eyes.</label><textarea id="q3" rows="4"></textarea></div>
+<div class="prompt"><label for="q4">4. Which do you think is faster, light or sound? What have you noticed in everyday life that makes you think so?</label><textarea id="q4" rows="4"></textarea></div>
+<div class="prompt"><label for="q5">5. Name one technology that uses light, and explain what it does.</label><textarea id="q5" rows="4"></textarea></div>
+<div class="prompt"><label for="q6">6. What is one thing you are curious about, or unsure of, when it comes to light?</label><textarea id="q6" rows="4"></textarea></div>
+<div class="btnrow noprint">
+<button type="button" id="seeAnswers">See my answers</button>
+</div>
+<p class="note">Your answers stay on this page. Nothing is sent anywhere, and nothing is saved online.</p>
+</section>
+<section id="summaryView" class="card hidden" aria-label="Your answers">
+<h2>My answers</h2>
+<div id="answers"></div>
+<div class="btnrow noprint">
+<button type="button" id="printBtn">Print</button>
+<button type="button" id="copyBtn" class="secondary">Copy</button>
+<button type="button" id="backEdit" class="secondary">Back and edit</button>
+</div>
+<p id="copyNote" class="copied noprint" aria-live="polite"></p>
+</section>
+</main>
+</div>
+<script>
+var PROMPTS = [{"id": "q1", "type": "textarea", "text": "In your own words, what is light?"}, {"id": "q2", "type": "textarea", "text": "List as many sources of light as you can. Which of them are natural, and which are made by people?"}, {"id": "q3", "type": "textarea", "text": "How do you think light travels? Describe the path light takes from a source to your eyes."}, {"id": "q4", "type": "textarea", "text": "Which do you think is faster, light or sound? What have you noticed in everyday life that makes you think so?"}, {"id": "q5", "type": "textarea", "text": "Name one technology that uses light, and explain what it does."}, {"id": "q6", "type": "textarea", "text": "What is one thing you are curious about, or unsure of, when it comes to light?"}];
+
+function escapeHtml(text) {
+  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+function collectAnswers() {
+  var out = [];
+  PROMPTS.forEach(function (p) {
+    var el = document.getElementById(p.id);
+    if (p.type === "slider") {
+      out.push({ question: p.text, answer: el.value + " out of 5" });
+    } else {
+      out.push({ question: p.text, answer: el.value.trim() });
+    }
+  });
+  return out;
+}
+function summaryHtml(items) {
+  var html = "";
+  items.forEach(function (item, i) {
+    var body = item.answer === ""
+      ? '<p class="blank">(left blank)</p>'
+      : "<p>" + escapeHtml(item.answer) + "</p>";
+    html += '<div class="answer"><h3>' + (i + 1) + ". " + escapeHtml(item.question) + "</h3>" + body + "</div>";
+  });
+  return html;
+}
+function summaryText(items) {
+  var lines = [document.title, document.querySelector(".subtitle").textContent, ""];
+  items.forEach(function (item, i) {
+    lines.push((i + 1) + ". " + item.question);
+    lines.push(item.answer === "" ? "(left blank)" : item.answer);
+    lines.push("");
+  });
+  return lines.join("\n");
+}
+function showSummary() {
+  var items = collectAnswers();
+  document.getElementById("answers").innerHTML = summaryHtml(items);
+  window.__lastSummaryText = summaryText(items);
+  document.getElementById("formView").classList.add("hidden");
+  document.getElementById("summaryView").classList.remove("hidden");
+  document.getElementById("summaryView").scrollIntoView();
+}
+function backToForm() {
+  document.getElementById("summaryView").classList.add("hidden");
+  document.getElementById("formView").classList.remove("hidden");
+  document.getElementById("formView").scrollIntoView();
+}
+function copyAnswers() {
+  var text = window.__lastSummaryText || "";
+  var done = function () {
+    document.getElementById("copyNote").textContent = "Copied. You can paste your answers wherever you keep your work.";
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(done, function () { fallbackCopy(text, done); });
+  } else {
+    fallbackCopy(text, done);
+  }
+}
+function fallbackCopy(text, done) {
+  var ta = document.createElement("textarea");
+  ta.value = text;
+  ta.style.position = "fixed";
+  ta.style.opacity = "0";
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand("copy"); done(); } catch (e) { /* clipboard unavailable */ }
+  document.body.removeChild(ta);
+}
+document.getElementById("seeAnswers").addEventListener("click", showSummary);
+document.getElementById("backEdit").addEventListener("click", backToForm);
+document.getElementById("printBtn").addEventListener("click", function () { window.print(); });
+document.getElementById("copyBtn").addEventListener("click", copyAnswers);
+document.querySelectorAll("input[type=range]").forEach(function (slider) {
+  var out = document.getElementById(slider.id + "Value");
+  var update = function () { out.textContent = slider.value + " out of 5"; };
+  slider.addEventListener("input", update);
+  update();
+});
+
+</script>
+</body>
+</html>
